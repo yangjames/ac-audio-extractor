@@ -18,6 +18,7 @@ def process_audio_file(
     recompute_existing : bool
 ) -> None:
     print(f"Processing {audio_file}")
+    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
     if not recompute_existing and os.path.exists(output_file_path):
         # print(f"{output_file_path} already exists. Skipping...")
         return
