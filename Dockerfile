@@ -1,5 +1,7 @@
 FROM python:3.6.8-stretch
 
+RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list
+
 # Common requirements
 RUN apt-get update \
     && apt-get install -y \
@@ -23,7 +25,11 @@ RUN apt-get update \
 
 
 # Python dependencies (needed for essentia)
-RUN pip install numpy==1.14.5
+RUN pip install numpy==1.17
+RUN pip install tqdm
+RUN pip install resampy==0.2.2
+RUN pip install numba==0.48
+RUN pip install librosa==0.9.2
 
 
 # Gaia
@@ -89,7 +95,7 @@ RUN pip install SoundFile==0.10.2 librosa==0.6.1 scipy==1.1.0 ffmpeg-python==0.1
 RUN pip install rdflib==4.2.2 rdflib-jsonld==0.4.0 PyLD==1.0.3
 
 # Install version 0.4 (commit be443e54f5b8865d7a055e438545f139899d17bc) of timbral models
-RUN git clone https://github.com/AudioCommons/timbral_models.git && cd timbral_models && git checkout be443e54f5b8865d7a055e438545f139899d17bc && python setup.py install  # Using commit corresponding to v0.5 (D5.8)
+RUN git clone https://github.com/AudioCommons/timbral_models.git && cd timbral_models && git checkout be443e54f5b8865d7a055e438545f139899d17bc && SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True python setup.py install  # Using commit corresponding to v0.5 (D5.8)
 
 # Add high-level models and music extractor configuration
 RUN mkdir -p models
@@ -98,4 +104,5 @@ ADD music_extractor_profile.yaml /
 
 # Add analysis script
 ADD analyze.py /
-ENTRYPOINT [ "python", "/analyze.py" ]
+ADD analyze-multithread.py /
+ENTRYPOINT [ "python", "/analyze-multithread.py" ]
